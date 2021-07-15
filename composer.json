@@ -1,3 +1,32 @@
 {
-"name": "osenco/airtel"
+    "authors": [
+        {
+            "email": "hi@osen.co.ke",
+            "homepage": "https://osen.co.ke",
+            "name": "Osen Concepts",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
+        "psr-4": {
+            "Osen\\Airtel\\": "src/"
+        }
+    },
+    "description": "Intuitive and Comprehensive M-PESA SDK for PHP Applications. Just Plug 'N Play",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "name": "osenco/airtel",
+    "readme": "README.md",
+    "require": {
+        "php": ">=7.4",
+        "guzzlehttp/guzzle": "7.4.x-dev"
+    },
+    "support": {
+        "email": "hi@osen.co.ke",
+        "issues": "https://github.com/osenco/airtel/issues"
+    },
+    "type": "library"
 }
