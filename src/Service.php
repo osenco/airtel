@@ -7,10 +7,9 @@ use GuzzleHttp\Exception\BadResponseException;
 
 class Service
 {
-    protected $baseUrl = 'https://openapi.airtel.africa/';
     public $client_id;
     public $client_secret;
-    public $client        = null;
+    public Client $client;
     protected $public_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCkq3XbDI1s8Lu7SpUBP+bqOs/MC6PKWz
     6n/0UkqTiOZqKqaoZClI3BUDTrSIJsrN1Qx7ivBzsaAYfsB0CygSSWay4iyUcnMVEDrNVO
     JwtWvHxpyWJC5RfKBrweW9b8klFa/CfKRtkK730apy0Kxjg+7fF0tB4O3Ic9Gxuv4pFkbQ
@@ -21,10 +20,6 @@ class Service
 
     public function __construct(array $options = [])
     {
-        if ($options['env'] == 'staging') {
-            $this->baseUrl = 'https://openapiuat.airtel.africa/';
-        }
-
         $this->client_id = $options['client_id'];
         $this->client_secret = $options['client_secret'];
         $this->public_key = $options['public_key'];
@@ -33,7 +28,9 @@ class Service
 
         $this->client = new Client(
             array(
-                'base_uri' => $this->baseUrl,
+                'base_uri' => $options['env'] == 'staging'
+                    ? 'https://openapiuat.airtel.africa/'
+                    : 'https://openapi.airtel.africa/',
             )
         );
     }
@@ -88,7 +85,7 @@ class Service
 
         return base64_encode($encrypted);
     }
-    
+
     public function userEnquiry($phone)
     {
         $headers = array(
