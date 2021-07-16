@@ -6,21 +6,32 @@ use GuzzleHttp\Exception\BadResponseException;
 
 class Disbursement extends Service
 {
-    public function send()
+    public function send($phone, $amount, $currency, $country, $reference, $id = null, $callback = null)
     {
         $headers = array(
             'Content-Type'  => 'application/json',
             'Accept'        => '*/*',
-            'X-Country'     => $this->country,
-            'X-Currency'    => $this->currency,
+            'X-Country'     => $country ?? $this->country,
+            'X-Currency'    => $currency ?? $this->currency,
             'Authorization' => "Bearer {$this->token}",
         );
         // Define array of request body.
-        $request_body = array();
+        $request_body = array(
+            "payee"       => array(
+                "msisdn" => $phone,
+            ),
+            "reference"   => $reference,
+            "pin"         => $this->pin,
+            "transaction" => array(
+                "amount" => $amount,
+                "id"     => $id ?? random_bytes(8),
+            ),
+        );
+
         try {
             $response = $this->client->request(
                 'POST',
-                '/openapiuat.airtel.africa/standard/v1/disbursements/',
+                '/standard/v1/disbursements/',
                 array(
                     'headers' => $headers,
                     'json'    => $request_body,
@@ -29,7 +40,7 @@ class Disbursement extends Service
             print_r($response->getBody()->getContents());
         } catch (BadResponseException $e) {
             // handle exception or api errors.
-            print_r($e->getMessage());
+            throw $e;
         }
     }
 
@@ -47,7 +58,7 @@ class Disbursement extends Service
         try {
             $response = $this->client->request(
                 'POST',
-                '/openapiuat.airtel.africa/standard/v1/disbursements/refund',
+                '/standard/v1/disbursements/refund',
                 array(
                     'headers' => $headers,
                     'json'    => $request_body,
@@ -56,7 +67,7 @@ class Disbursement extends Service
             print_r($response->getBody()->getContents());
         } catch (BadResponseException $e) {
             // handle exception or api errors.
-            print_r($e->getMessage());
+            throw $e;
         }
     }
 
@@ -74,7 +85,7 @@ class Disbursement extends Service
         try {
             $response = $this->client->request(
                 'GET',
-                '/openapiuat.airtel.africa/standard/v1/disbursements/{id}',
+                '/standard/v1/disbursements/{id}',
                 array(
                     'headers' => $headers,
                     'json'    => $request_body,
@@ -83,7 +94,7 @@ class Disbursement extends Service
             print_r($response->getBody()->getContents());
         } catch (BadResponseException $e) {
             // handle exception or api errors.
-            print_r($e->getMessage());
+            throw $e;
         }
     }
 }

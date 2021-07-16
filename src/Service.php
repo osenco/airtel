@@ -35,20 +35,20 @@ class Service
         );
     }
 
-    public function authorize($token = null)
+    public function authorize($token = null, callable $callback = null)
     {
-        if (!is_null($token)) {
-            $this->token = $token;
-        } else {
+        if (is_null($token)) {
             $headers = array(
                 'Content-Type' => 'application/json',
             );
+
             // Define array of request body.
             $request_body = array(
                 "client_id"     => $this->client_id,
                 "client_secret" => $this->client_secret,
                 "grant_type"    => "client_credentials",
             );
+
             try {
                 $response = $this->client->request(
                     'POST',
@@ -67,6 +67,12 @@ class Service
                 // handle exception or api errors.
                 throw $e;
             }
+        } else {
+            $this->token = $token;
+        }
+
+        if(!is_null($callback)) {
+            $callback($this->token);
         }
 
         return $this;
