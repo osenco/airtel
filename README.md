@@ -9,19 +9,23 @@ composer require osenco/airtel
 ## Collection APIs
 ### Instantiate
 ```php
-$airtel = new \Osen\Airtel\Collection(array(
-    'env' => 'live',
-    'client_id' => 'YOUR_CLIENT_ID',
-    'client_secret' => 'YOUR_CLIENT_SECRET',
-    'public_key' => 'YOUR_PUBLIC_KEY',
-    'country' => 'Transaction Country Code e.g KE',
-    'currency' => 'Transaction Currency Code e.g KES'
-));
+use Osen\Airtel\Collection as CollectAPI;
+
+CollectAPI::init(
+    array(
+        'env'           => 'live',
+        'client_id'     => 'YOUR_CLIENT_ID',
+        'client_secret' => 'YOUR_CLIENT_SECRET',
+        'public_key'    => 'YOUR_PUBLIC_KEY',
+        'country'       => 'Transaction Country Code e.g KE',
+        'currency'      => 'Transaction Currency Code e.g KES'
+    )
+);
 ```
 
 ### STK/USSD Push
 ```php
-$airtel->authorize()->stkPush($phone, $amount);
+CollectAPI::authorize()->stkPush($phone, $amount);
 ```
 
 Note : Do not send country code in phone number.
@@ -30,7 +34,7 @@ You can pass a token to the authorize method if you have a caching mechanism ins
 
 ```php
 $token = ''; // Get your token from database, redis or whichever cache you use.
-$airtel->authorize($token, function($new_token) {
+Collection::authorize($token, function($new_token) {
     print_r($new_token);
     // Save/update $new_token in your database
 })->stkPush($phone, $amount);
@@ -38,17 +42,21 @@ $airtel->authorize($token, function($new_token) {
 
 ## Disbursement APIs
 ```php
-$disbursal = new \Osen\Airtel\Disbursement(array(
-    'env' => 'live',
-    'client_id' => 'YOUR_CLIENT_ID',
-    'client_secret' => 'YOUR_CLIENT_SECRET',
-    'public_key' => 'YOUR_PUBLIC_KEY',
-    'country' => 'Transaction Country Code e.g KE',
-    'currency' => 'Transaction Currency Code e.g KES'
-));
+use Osen\Airtel\Disbursement as DisburseAPI;
+
+DisburseAPI::init(
+    array(
+        'env'           => 'live',
+        'client_id'     => 'YOUR_CLIENT_ID',
+        'client_secret' => 'YOUR_CLIENT_SECRET',
+        'public_key'    => 'YOUR_PUBLIC_KEY',
+        'country'       => 'Transaction Country Code e.g KE',
+        'currency'      => 'Transaction Currency Code e.g KES'
+    )
+);
 ```
 
 Then send the money
 ```php
-$disbursal->authorize()->send($phone, $amount);
+DisburseAPI::authorize()->send($phone, $amount);
 ```

@@ -7,33 +7,33 @@ use GuzzleHttp\Exception\BadResponseException;
 class Collection extends Service
 {
 
-    public function ussdPush($amount, $phone, $id = null, $reference = "", $currency = 'KES', $country = "")
+    public function ussdPush($amount, $phone, $id = null, $reference = '', $currency = 'KES', $country = '')
     {
         $headers = array(
             'Content-Type' => 'application/json',
-            'X-Country' => $this->country,
-            'X-Currency' => $this->currency,
-            'Authorization'  =>  "Bearer {$this->token}",
+            'X-Country' => self::$country,
+            'X-Currency' => self::$currency,
+            'Authorization' => 'Bearer '.self::$token,
         );
 
         // Define array of request body.
         $request_body = array(
-            "reference"   => $reference,
-            "subscriber"  => array(
-                "country"  => $country,
-                "currency" => $currency,
-                "msisdn"   => 9999999999,
+            'reference'   => $reference,
+            'subscriber'  => array(
+                'country'  => $country,
+                'currency' => $currency,
+                'msisdn'   => 9999999999,
             ),
-            "transaction" => array(
-                "amount"   => 1000,
-                "country"  => $country,
-                "currency" => $currency,
-                "id"       => is_null($id) ? random_bytes(8) : $id,
+            'transaction' => array(
+                'amount'   => 1000,
+                'country'  => $country,
+                'currency' => $currency,
+                'id'       => is_null($id) ? random_bytes(8) : $id,
             ),
         );
 
         try {
-            $response = $this->client->request(
+            $response = self::$client->request(
                 'POST',
                 '/merchant/v1/payments/',
                 array(
@@ -54,20 +54,20 @@ class Collection extends Service
     {
         $headers = array(
             'Content-Type' => 'application/json',
-            'X-Country' => $this->country,
-            'X-Currency' => $this->currency,
-            'Authorization'  =>  "Bearer {$this->token}",
+            'X-Country' => self::$country,
+            'X-Currency' => self::$currency,
+            'Authorization' => 'Bearer '.self::$token,
         );
 
         // Define array of request body.
         $request_body = array(
-            "transaction" => array(
-                "airtel_money_id" => $id
+            'transaction' => array(
+                'airtel_money_id' => $id
             )
         );
 
         try {
-            $response = $this->client->request(
+            $response = self::$client->request(
                 'POST',
                 '/standard/v1/payments/refund',
                 array(
@@ -86,16 +86,16 @@ class Collection extends Service
     {
         $headers = array(
             'Content-Type' => 'application/json',
-            'X-Country' => $this->country,
-            'X-Currency' => $this->currency,
-            'Authorization'  =>  "Bearer {$this->token}",
+            'X-Country' => self::$country,
+            'X-Currency' => self::$currency,
+            'Authorization' => 'Bearer '.self::$token,
         );
         // Define array of request body.
         $request_body = array();
         try {
-            $response = $this->client->request(
+            $response = self::$client->request(
                 'GET',
-                "/standard/v1/payments/{$id}",
+                '/standard/v1/payments/{$id}',
                 array(
                     'headers' => $headers,
                     'json' => $request_body,

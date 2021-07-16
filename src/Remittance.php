@@ -15,7 +15,7 @@ class Remittance extends Service
         // Define array of request body.
         $request_body = array();
         try {
-            $response = $this->client->request(
+            $response = self::$client->request(
                 'POST',
                 '/openapiuat.airtel.africa/openapi/moneytransfer/v2/validate',
                 array(
@@ -34,25 +34,25 @@ class Remittance extends Service
     {
         $headers = array(
             'Content-Type'  => 'application/json',
-            'Authorization' => "Bearer {$this->token}",
+            'Authorization' => 'Bearer '.self::$token,
         );
         // Define array of request body.
         $request_body = array(
-            "amount" => 10,
-            "channelName" => "M******Y",
-            "country" => "KENYA",
-            "currency" => "KES",
-            "extTRID" => "random-txn-id",
-            "msisdn" => "98*****21",
-            "mtcn" => "5**21",
-            "payerCountry" => "MG",
-            "payerFirstName" => "Bob",
-            "payerLastName" => "Builder",
-            "pin" => "KYJExln8rZwb14G1K5UE5YF/lD7KheNUM171MUEG3/f/QD8nmNKRsa44UZkh6A4cR8****"
+            'amount' => 10,
+            'channelName' => 'M******Y',
+            'country' => 'KENYA',
+            'currency' => 'KES',
+            'extTRID' => 'random-txn-id',
+            'msisdn' => '98*****21',
+            'mtcn' => '5**21',
+            'payerCountry' => 'MG',
+            'payerFirstName' => 'Bob',
+            'payerLastName' => 'Builder',
+            'pin' => 'KYJExln8rZwb14G1K5UE5YF/lD7KheNUM171MUEG3/f/QD8nmNKRsa44UZkh6A4cR8****'
         );
 
         try {
-            $response = $this->client->request(
+            $response = self::$client->request(
                 'POST',
                 '/openapiuat.airtel.africa/openapi/moneytransfer/v2/credit',
                 array(
@@ -71,18 +71,18 @@ class Remittance extends Service
     {
         $headers = array(
             'Content-Type'  => 'application/json',
-            'Authorization' => "Bearer {$this->token}",
+            'Authorization' => 'Bearer '.self::$token,
         );
         // Define array of request body.
         $request_body = array(
-            "channelName" => "M******Y",
-            "country" => "KENYA",
-            "txnID" => "************",
-            "pin" => "KYJExln8rZwb14G1K5UE5YF/lD7KheNUM171MUEG3/f/QD8nmNKRsa44UZkh6A4cR8*"
+            'channelName' => 'M******Y',
+            'country' => 'KENYA',
+            'txnID' => '************',
+            'pin' => 'KYJExln8rZwb14G1K5UE5YF/lD7KheNUM171MUEG3/f/QD8nmNKRsa44UZkh6A4cR8*'
         );
 
         try {
-            $response = $this->client->request(
+            $response = self::$client->request(
                 'POST',
                 '/openapiuat.airtel.africa/openapi/moneytransfer/v2/refund',
                 array(
@@ -101,13 +101,13 @@ class Remittance extends Service
     {
         $headers = array(
             'Content-Type'        => 'application/json',
-            'Authorization' => "Bearer {$this->token}",
+            'Authorization' => 'Bearer '.self::$token,
         );
 
         // Define array of request body.
         $request_body = array();
         try {
-            $response = $this->client->request(
+            $response = self::$client->request(
                 'POST',
                 '/openapiuat.airtel.africa/openapi/moneytransfer/v2/checkstatus',
                 array(

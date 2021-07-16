@@ -7,35 +7,47 @@ use GuzzleHttp\Exception\BadResponseException;
 
 class Service
 {
-    public $client_id;
-    public $client_secret;
-    public Client $client;
-    protected $public_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCkq3XbDI1s8Lu7SpUBP+bqOs/MC6PKWz
+    public static string $client_id;
+    public static string $client_secret;
+    protected static Client $client;
+    protected static string $token;
+    protected static string $country    = 'KE';
+    protected static string $currency   = 'KES';
+    protected static string $pin        = '';
+    protected static string $public_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCkq3XbDI1s8Lu7SpUBP+bqOs/MC6PKWz
     6n/0UkqTiOZqKqaoZClI3BUDTrSIJsrN1Qx7ivBzsaAYfsB0CygSSWay4iyUcnMVEDrNVO
     JwtWvHxpyWJC5RfKBrweW9b8klFa/CfKRtkK730apy0Kxjg+7fF0tB4O3Ic9Gxuv4pFkbQ
     IDAQAB';
-    protected $token;
-    protected $country = 'KE';
-    protected $currency = 'KES';
 
-    public function __construct(array $options = [])
+    /**
+     * @param array $options Config options
+     */
+    public static function init(array $options = [])
     {
-        $this->client_id = $options['client_id'];
-        $this->client_secret = $options['client_secret'];
-        $this->public_key = $options['public_key'];
-        $this->country = $options['country'];
-        $this->currency = $options['currency'];
+        self::$client_id     = $options['client_id'];
+        self::$client_secret = $options['client_secret'];
+        self::$public_key    = $options['public_key'];
+        self::$country       = $options['country'];
+        self::$currency      = $options['currency'];
 
-        $this->client = new Client(
+        self::$client = new Client(
             array(
                 'base_uri' => $options['env'] == 'staging'
-                    ? 'https://openapiuat.airtel.africa/'
-                    : 'https://openapi.airtel.africa/',
+                ? 'https://openapiuat.airtel.africa/'
+                : 'https://openapi.airtel.africa/',
             )
         );
     }
 
-    public function authorize($token = null, callable $callback = null)
+    /**
+     * Generate or refresh the access token
+     * 
+     * @param string $token
+     * @param callable $callback
+     * 
+     * @return Service
+     */
+    public static function authorize($token = null, callable $callback = null)
     {
         if (is_null($token)) {
             $headers = array(
@@ -44,13 +56,13 @@ class Service
 
             // Define array of request body.
             $request_body = array(
-                "client_id"     => $this->client_id,
-                "client_secret" => $this->client_secret,
-                "grant_type"    => "client_credentials",
+                'client_id'     => self::$client_id,
+                'client_secret' => self::$client_secret,
+                'grant_type'    => 'client_credentials',
             );
 
             try {
-                $response = $this->client->request(
+                $response = self::$client->request(
                     'POST',
                     '/auth/oauth2/token',
                     array(
@@ -62,49 +74,55 @@ class Service
 
                 $data = json_decode($response, true);
 
-                $this->token = $data['access_token'];
+                self::$token = $data['access_token'];
             } catch (BadResponseException $e) {
                 // handle exception or api errors.
                 throw $e;
             }
         } else {
-            $this->token = $token;
+            self::$token = $token;
         }
 
-        if(!is_null($callback)) {
-            $callback($this->token);
+        if (!is_null($callback)) {
+            $callback(self::$token);
         }
 
-        return $this;
+        return new self;
     }
 
     public function encrypt($data)
     {
         // Load public key
-        $publicKey = openssl_pkey_get_public(array($this->public_key, ""));
+        $publicKey = openssl_pkey_get_public(array(self::$public_key, ''));
         if (!$publicKey) {
-            echo "Public key NOT Correct";
+            echo 'Public key NOT Correct';
         }
         if (!openssl_public_encrypt($data, $encrypted, $publicKey)) {
-            echo "Error encrypting with public key";
+            echo 'Error encrypting with public key';
         }
 
         return base64_encode($encrypted);
+    }
+
+    public function setPin($data) { 
+        self::$pin = $this->encrypt($data);
+
+        return $this;
     }
 
     public function userEnquiry($phone)
     {
         $headers = array(
             'Content-Type'  => 'application/json',
-            'X-Country'     => $this->country,
-            'X-Currency'    => $this->currency,
-            'Authorization' => "Bearer {$this->token}",
+            'X-Country'     => self::$country,
+            'X-Currency'    => self::$currency,
+            'Authorization' => 'Bearer ' . self::$token,
         );
 
         // Define array of request body.
         $request_body = array();
         try {
-            $response = $this->client->request(
+            $response = self::$client->request(
                 'GET',
                 "/standard/v1/users/{$phone}",
                 array(
