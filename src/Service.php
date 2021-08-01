@@ -2,19 +2,20 @@
 
 namespace Osen\Airtel;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 
 class Service
 {
-    public static string $client_id;
-    public static string $client_secret;
-    protected static Client $client;
-    protected static string $token;
-    protected static string $country    = 'KE';
-    protected static string $currency   = 'KES';
-    protected static string $pin        = '';
-    protected static string $public_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCkq3XbDI1s8Lu7SpUBP+bqOs/MC6PKWz
+    public string $client_id;
+    public string $client_secret;
+    protected Client $client;
+    protected string $token;
+    protected string $country    = 'KE';
+    protected string $currency   = 'KES';
+    protected string $pin        = '';
+    protected string $public_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCkq3XbDI1s8Lu7SpUBP+bqOs/MC6PKWz
     6n/0UkqTiOZqKqaoZClI3BUDTrSIJsrN1Qx7ivBzsaAYfsB0CygSSWay4iyUcnMVEDrNVO
     JwtWvHxpyWJC5RfKBrweW9b8klFa/CfKRtkK730apy0Kxjg+7fF0tB4O3Ic9Gxuv4pFkbQ
     IDAQAB';
@@ -22,19 +23,18 @@ class Service
     /**
      * @param array $options Config options
      */
-    public static function init(array $options = [])
+    public function __construct(array $options = [])
     {
-        self::$client_id     = $options['client_id'];
-        self::$client_secret = $options['client_secret'];
-        self::$public_key    = $options['public_key'];
-        self::$country       = $options['country'];
-        self::$currency      = $options['currency'];
-
-        self::$client = new Client(
+        $this->client_id     = $options['client_id'];
+        $this->client_secret = $options['client_secret'];
+        $this->public_key    = $options['public_key'];
+        $this->country       = $options['country'];
+        $this->currency      = $options['currency'];
+        $this->client        = new Client(
             array(
                 'base_uri' => $options['env'] == 'staging'
-                ? 'https://openapiuat.airtel.africa/'
-                : 'https://openapi.airtel.africa/',
+                    ? 'https://openapiuat.airtel.africa/'
+                    : 'https://openapi.airtel.africa/',
             )
         );
     }
@@ -45,55 +45,50 @@ class Service
      * @param string $token
      * @param callable $callback
      * 
-     * @return Service
+     * @return $this
      */
-    public static function authorize($token = null, callable $callback = null)
+    public function authorize($token = null, callable $callback = null)
     {
         if (is_null($token)) {
-            $headers = array(
-                'Content-Type' => 'application/json',
-            );
-
-            // Define array of request body.
-            $request_body = array(
-                'client_id'     => self::$client_id,
-                'client_secret' => self::$client_secret,
-                'grant_type'    => 'client_credentials',
-            );
-
             try {
-                $response = self::$client->request(
+                $response = $this->client->request(
                     'POST',
                     '/auth/oauth2/token',
                     array(
-                        'headers' => $headers,
-                        'json'    => $request_body,
+                        'headers' => array(
+                            'Content-Type' => 'application/json',
+                        ),
+                        'json'    => array(
+                            'client_id'     => $this->client_id,
+                            'client_secret' => $this->client_secret,
+                            'grant_type'    => 'client_credentials',
+                        ),
                     )
                 );
+
                 $response = $response->getBody()->getContents();
-
                 $data = json_decode($response, true);
-
-                self::$token = $data['access_token'];
+                $this->token = $data['access_token'];
             } catch (BadResponseException $e) {
-                // handle exception or api errors.
+                throw $e;
+            } catch (Exception $e) {
                 throw $e;
             }
         } else {
-            self::$token = $token;
+            $this->token = $token;
         }
 
         if (!is_null($callback)) {
-            $callback(self::$token);
+            $callback($this->token);
         }
 
-        return new self;
+        return $this;
     }
 
     public function encrypt($data)
     {
         // Load public key
-        $publicKey = openssl_pkey_get_public(array(self::$public_key, ''));
+        $publicKey = openssl_pkey_get_public(array($this->public_key, ''));
         if (!$publicKey) {
             echo 'Public key NOT Correct';
         }
@@ -104,8 +99,9 @@ class Service
         return base64_encode($encrypted);
     }
 
-    public function setPin($data) { 
-        self::$pin = $this->encrypt($data);
+    public function setPin($data)
+    {
+        $this->pin = $this->encrypt($data);
 
         return $this;
     }
@@ -114,15 +110,15 @@ class Service
     {
         $headers = array(
             'Content-Type'  => 'application/json',
-            'X-Country'     => self::$country,
-            'X-Currency'    => self::$currency,
-            'Authorization' => 'Bearer ' . self::$token,
+            'X-Country'     => $this->country,
+            'X-Currency'    => $this->currency,
+            'Authorization' => 'Bearer ' . $this->token,
         );
 
         // Define array of request body.
         $request_body = array();
         try {
-            $response = self::$client->request(
+            $response = $this->client->request(
                 'GET',
                 "/standard/v1/users/{$phone}",
                 array(
@@ -133,7 +129,8 @@ class Service
 
             return json_decode($response->getBody()->getContents(), true);
         } catch (BadResponseException $e) {
-            // handle exception or api errors.
+            throw $e;
+        } catch (Exception $e) {
             throw $e;
         }
     }

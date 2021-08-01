@@ -6,110 +6,120 @@ use GuzzleHttp\Exception\BadResponseException;
 
 class Collection extends Service
 {
-
-    public function ussdPush($amount, $phone, $id = null, $reference = '', $currency = 'KES', $country = '')
+    public function __construct(array $config)
     {
-        $headers = array(
-            'Content-Type' => 'application/json',
-            'X-Country' => self::$country,
-            'X-Currency' => self::$currency,
-            'Authorization' => 'Bearer '.self::$token,
-        );
+        parent::__construct($config);
+    }
 
-        // Define array of request body.
-        $request_body = array(
-            'reference'   => $reference,
-            'subscriber'  => array(
-                'country'  => $country,
-                'currency' => $currency,
-                'msisdn'   => 9999999999,
-            ),
-            'transaction' => array(
-                'amount'   => 1000,
-                'country'  => $country,
-                'currency' => $currency,
-                'id'       => is_null($id) ? random_bytes(8) : $id,
-            ),
-        );
-
+    public function ussdPush($amount, $phone, $id = null, $reference = null, $currency = null, $country = null, $callback = null)
+    {
         try {
-            $response = self::$client->request(
+            $response = $this->client->request(
                 'POST',
                 '/merchant/v1/payments/',
                 array(
-                    'headers' => $headers,
-                    'json'    => $request_body,
+                    'headers' =>array(
+                        'Content-Type'  => 'application/json',
+                        'X-Country'     => $this->country,
+                        'X-Currency'    => $this->currency,
+                        'Authorization' => 'Bearer ' . $this->token,
+                    ),
+                    'json'    => array(
+                        'reference'   => is_null($reference) ? random_bytes(8) : $reference,
+                        'subscriber'  => array(
+                            'country'  => is_null($country) ? $this->country : $country,
+                            'currency' => is_null($currency) ? $this->currency : $currency,
+                            'msisdn'   => $phone,
+                        ),
+                        'transaction' => array(
+                            'amount'   => $amount,
+                            'country'  => is_null($country) ? $this->country : $country,
+                            'currency' => is_null($currency) ? $this->currency : $currency,
+                            'id'       => is_null($id) ? random_bytes(8) : $id,
+                        ),
+                    ),
                 )
             );
 
             $response = $response->getBody()->getContents();
-            return json_decode($response, true);
+            $result   = json_decode($response, true);
+
+            return is_null($callback) ? $result : $callback($result);
         } catch (BadResponseException $e) {
             // handle exception or api errors.
+            throw $e;
+        } catch (\Exception $e) {
             throw $e;
         }
     }
 
-    public function refund($id, $country = 'KE', $currency = 'KES')
+    public function refund($id, $country = null, $currency = null, $callback = null)
     {
-        $headers = array(
-            'Content-Type' => 'application/json',
-            'X-Country' => self::$country,
-            'X-Currency' => self::$currency,
-            'Authorization' => 'Bearer '.self::$token,
-        );
-
-        // Define array of request body.
-        $request_body = array(
-            'transaction' => array(
-                'airtel_money_id' => $id
-            )
-        );
-
         try {
-            $response = self::$client->request(
+            $response = $this->client->request(
                 'POST',
                 '/standard/v1/payments/refund',
                 array(
-                    'headers' => $headers,
-                    'json'    => $request_body,
+                    'headers' => array(
+                        'Content-Type'  => 'application/json',
+                        'X-Country'     => is_null($country) ? $this->country : $country,
+                        'X-Currency'    => is_null($currency) ? $this->currency : $currency,
+                        'Authorization' => 'Bearer ' . $this->token,
+                    ),
+                    'json'    => array(
+                        'transaction' => array(
+                            'airtel_money_id' => $id,
+                        ),
+                    ),
                 )
             );
-            return json_decode($response->getBody()->getContents(), true);
+
+            $response = $response->getBody()->getContents();
+            $result   = json_decode($response, true);
+
+            return is_null($callback) ? $result : $callback($result);
         } catch (BadResponseException $e) {
             // handle exception or api errors.
+            throw $e;
+        } catch (\Exception $e) {
             throw $e;
         }
     }
 
-    function statusQuery($id)
+    public function statusQuery($id, $country = null, $currency = null, $callback = null)
     {
-        $headers = array(
-            'Content-Type' => 'application/json',
-            'X-Country' => self::$country,
-            'X-Currency' => self::$currency,
-            'Authorization' => 'Bearer '.self::$token,
-        );
-        // Define array of request body.
-        $request_body = array();
         try {
-            $response = self::$client->request(
+            $response = $this->client->request(
                 'GET',
                 '/standard/v1/payments/{$id}',
                 array(
-                    'headers' => $headers,
-                    'json' => $request_body,
+                    'headers' => array(
+                        'Content-Type'  => 'application/json',
+                        'X-Country'     => is_null($country) ? $this->country : $country,
+                        'X-Currency'    => is_null($currency) ? $this->currency : $currency,
+                        'Authorization' => 'Bearer ' . $this->token,
+                    ),
+                    'json'    => array(
+                        'transaction' => array(
+                            'airtel_money_id' => $id,
+                        ),
+                    ),
                 )
             );
 
-            return json_decode($response->getBody()->getContents(), true);
+            $response = $response->getBody()->getContents();
+            $result   = json_decode($response, true);
+
+            return is_null($callback) ? $result : $callback($result);
         } catch (BadResponseException $e) {
             // handle exception or api errors.
+            throw $e;
+        } catch (\Exception $e) {
             throw $e;
         }
     }
 
-    function reconcile($payload, $callback = null)
+    public function reconcile($payload, $callback = null)
     {
         $data = json_decode($payload, true);
         return is_null($callback)

@@ -9,9 +9,9 @@ composer require osenco/airtel
 ## Collection APIs
 ### Instantiate
 ```php
-use Osen\Airtel\Collection as CollectAPI;
+use Osen\Airtel\Collection;
 
-CollectAPI::init(
+$CollectAPI = new Collection(
     array(
         'env'           => 'live',
         'client_id'     => 'YOUR_CLIENT_ID',
@@ -25,7 +25,7 @@ CollectAPI::init(
 
 ### STK/USSD Push
 ```php
-CollectAPI::authorize()->stkPush($phone, $amount);
+$CollectAPI->authorize()->ussdPush($phone, $amount);
 ```
 
 Note : Do not send country code in phone number.
@@ -34,17 +34,17 @@ You can pass a token to the authorize method if you have a caching mechanism ins
 
 ```php
 $token = ''; // Get your token from database, redis or whichever cache you use.
-Collection::authorize($token, function($new_token) {
-    print_r($new_token);
-    // Save/update $new_token in your database
-})->stkPush($phone, $amount);
+$CollectAPI->authorize($token, function($newToken) {
+    print_r($newToken);
+    // Save/update $newToken in your database
+})->ussdPush($phone, $amount);
 ```
 
 ## Disbursement APIs
 ```php
-use Osen\Airtel\Disbursement as DisburseAPI;
+use Osen\Airtel\Disbursement;
 
-DisburseAPI::init(
+$DisburseAPI = new Disbursement(
     array(
         'env'           => 'live',
         'client_id'     => 'YOUR_CLIENT_ID',
@@ -58,5 +58,5 @@ DisburseAPI::init(
 
 Then send the money
 ```php
-DisburseAPI::authorize()->send($phone, $amount);
+$DisburseAPI->authorize()->send($phone, $amount);
 ```

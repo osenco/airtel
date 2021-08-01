@@ -2,26 +2,33 @@
 
 namespace Osen\Airtel;
 
+use Exception;
 use GuzzleHttp\Exception\BadResponseException;
 
 class Disbursement extends Service
 {
+    public function __construct(array $config)
+    {
+        parent::__construct($config);
+    }
+
     public function send($phone, $amount, $currency, $country, $reference, $id = null, $callback = null)
     {
         $headers = array(
             'Content-Type'  => 'application/json',
             'Accept'        => '*/*',
-            'X-Country'     => $country ?? self::$country,
-            'X-Currency'    => $currency ?? self::$currency,
-            'Authorization' => 'Bearer '.self::$token,
+            'X-Country'     => $country ?? $this->country,
+            'X-Currency'    => $currency ?? $this->currency,
+            'Authorization' => 'Bearer ' . $this->token,
         );
+
         // Define array of request body.
-        $request_body = array(
+        $payload = array(
             'payee'       => array(
                 'msisdn' => $phone,
             ),
             'reference'   => $reference,
-            'pin'         => self::$pin,
+            'pin'         => $this->pin,
             'transaction' => array(
                 'amount' => $amount,
                 'id'     => $id ?? random_bytes(8),
@@ -29,71 +36,90 @@ class Disbursement extends Service
         );
 
         try {
-            $response = self::$client->request(
+            $response = $this->client->request(
                 'POST',
                 '/standard/v1/disbursements/',
                 array(
                     'headers' => $headers,
-                    'json'    => $request_body,
+                    'json'    => $payload,
                 )
             );
-            print_r($response->getBody()->getContents());
+
+            $response = $response->getBody()->getContents();
+            $result   = json_decode($response, true);
+
+            return is_null($callback) ? $result : $callback($result);
         } catch (BadResponseException $e) {
             // handle exception or api errors.
+            throw $e;
+        } catch (Exception $e) {
             throw $e;
         }
     }
 
-    public function refund()
+    public function refund($id, $callback = null)
     {
         $headers = array(
             'Content-Type'  => 'application/json',
             'Accept'        => '*/*',
-            'X-Country'     => self::$country,
-            'X-Currency'    => self::$currency,
-            'Authorization' => 'Bearer '.self::$token,
+            'X-Country'     => $this->country,
+            'X-Currency'    => $this->currency,
+            'Authorization' => 'Bearer ' . $this->token,
         );
+
         // Define array of request body.
-        $request_body = array();
+        $payload = array();
         try {
-            $response = self::$client->request(
+            $response = $this->client->request(
                 'POST',
                 '/standard/v1/disbursements/refund',
                 array(
                     'headers' => $headers,
-                    'json'    => $request_body,
+                    'json'    => $payload,
                 )
             );
-            print_r($response->getBody()->getContents());
+
+            $response = $response->getBody()->getContents();
+            $result   = json_decode($response, true);
+
+            return is_null($callback) ? $result : $callback($result);
         } catch (BadResponseException $e) {
             // handle exception or api errors.
+            throw $e;
+        } catch (Exception $e) {
             throw $e;
         }
     }
 
-    public function statusQuery($id)
+    public function statusQuery($id, $callback = null)
     {
         $headers = array(
             'Accept'        => '*/*',
-            'X-Country'     => self::$country,
-            'X-Currency'    => self::$currency,
-            'Authorization' => 'Bearer '.self::$token,
+            'X-Country'     => $this->country,
+            'X-Currency'    => $this->currency,
+            'Authorization' => 'Bearer ' . $this->token,
         );
 
         // Define array of request body.
-        $request_body = array();
+        $payload = array();
         try {
-            $response = self::$client->request(
+            $response = $this->client->request(
                 'GET',
                 '/standard/v1/disbursements/{id}',
                 array(
                     'headers' => $headers,
-                    'json'    => $request_body,
+                    'json'    => $payload,
                 )
             );
-            print_r($response->getBody()->getContents());
+
+            $response = $response->getBody()->getContents();
+            $result   = json_decode($response, true);
+
+            return is_null($callback) ? $result : $callback($result);
         } catch (BadResponseException $e) {
             // handle exception or api errors.
+            throw $e;
+        } catch (Exception $e) {
             throw $e;
         }
     }
