@@ -3,9 +3,8 @@
 namespace Osen\Airtel;
 
 use GuzzleHttp\Exception\BadResponseException;
-use Osen\Airtel\Factories\Product;
 
-class Remittance extends Service implements Product
+class Remittance extends Service
 {
     public function __construct(array $config)
     {
@@ -14,19 +13,16 @@ class Remittance extends Service implements Product
 
     function checkEligibility($phone, $callback = null)
     {
-        $headers = array(
-            'Content-Type' => 'application/json',
-            'Authorization'  =>  'Bearer  UCLcp1oeq44KPXr8X*******xCzki2w',
-        );
-        // Define array of request body.
-        $payload = array();
         try {
             $response = $this->client->request(
                 'POST',
-                '/openapiuat.airtel.africa/openapi/moneytransfer/v2/validate',
+                'openapi/moneytransfer/v2/validate',
                 array(
-                    'headers' => $headers,
-                    'json' => $payload,
+                    'headers' => array(
+                        'Content-Type' => 'application/json',
+                        'Authorization'  =>  'Bearer '.$this->token,
+                    ),
+                    'json' => array(),
                 )
             );
 
@@ -42,32 +38,28 @@ class Remittance extends Service implements Product
 
     public function transferCredit($callback = null)
     {
-        $headers = array(
-            'Content-Type'  => 'application/json',
-            'Authorization' => 'Bearer '.$this->token,
-        );
-        // Define array of request body.
-        $payload = array(
-            'amount' => 10,
-            'channelName' => 'M******Y',
-            'country' => 'KENYA',
-            'currency' => 'KES',
-            'extTRID' => 'random-txn-id',
-            'msisdn' => '98*****21',
-            'mtcn' => '5**21',
-            'payerCountry' => 'MG',
-            'payerFirstName' => 'Bob',
-            'payerLastName' => 'Builder',
-            'pin' => 'KYJExln8rZwb14G1K5UE5YF/lD7KheNUM171MUEG3/f/QD8nmNKRsa44UZkh6A4cR8****'
-        );
-
         try {
             $response = $this->client->request(
                 'POST',
-                '/openapiuat.airtel.africa/openapi/moneytransfer/v2/credit',
+                'openapi/moneytransfer/v2/credit',
                 array(
-                    'headers' => $headers,
-                    'json' => $payload,
+                    'headers' => array(
+                        'Content-Type'  => 'application/json',
+                        'Authorization' => 'Bearer '.$this->token,
+                    ),
+                    'json' => array(
+                        'amount' => 10,
+                        'channelName' => 'M******Y',
+                        'country' => 'KENYA',
+                        'currency' => 'KES',
+                        'extTRID' => 'random-txn-id',
+                        'msisdn' => '98*****21',
+                        'mtcn' => '5**21',
+                        'payerCountry' => 'MG',
+                        'payerFirstName' => 'Bob',
+                        'payerLastName' => 'Builder',
+                        'pin' => 'KYJExln8rZwb14G1K5UE5YF/lD7KheNUM171MUEG3/f/QD8nmNKRsa44UZkh6A4cR8****'
+                    ),
                 )
             );
 
@@ -98,7 +90,7 @@ class Remittance extends Service implements Product
         try {
             $response = $this->client->request(
                 'POST',
-                '/openapiuat.airtel.africa/openapi/moneytransfer/v2/refund',
+                'openapi/moneytransfer/v2/refund',
                 array(
                     'headers' => $headers,
                     'json' => $payload,
@@ -132,7 +124,7 @@ class Remittance extends Service implements Product
         try {
             $response = $this->client->request(
                 'POST',
-                '/openapiuat.airtel.africa/openapi/moneytransfer/v2/refund',
+                'openapi/moneytransfer/v2/refund',
                 array(
                     'headers' => $headers,
                     'json' => $payload,
@@ -161,7 +153,7 @@ class Remittance extends Service implements Product
         try {
             $response = $this->client->request(
                 'POST',
-                '/openapiuat.airtel.africa/openapi/moneytransfer/v2/checkstatus',
+                'openapi/moneytransfer/v2/checkstatus',
                 array(
                     'headers' => $headers,
                     'json' => $payload,

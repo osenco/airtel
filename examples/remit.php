@@ -1,7 +1,7 @@
 <?php
 use Osen\Airtel\Remittance;
 
-$RemitAPI = new Remittance(
+$remitAPI = new Remittance(
     array(
         'env'           => 'live',
         'client_id'     => 'YOUR_CLIENT_ID',
@@ -12,4 +12,4 @@ $RemitAPI = new Remittance(
     )
 );
 
-$RemitAPI->authorize()->send($phone, $amount);
+$remitAPI->authorize()->send($phone, $amount);

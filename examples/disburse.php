@@ -1,7 +1,7 @@
 <?php
 use Osen\Airtel\Disbursement;
 
-$DisburseAPI =  new Disbursement(
+$disburseAPI =  new Disbursement(
     array(
         'env'           => 'live',
         'client_id'     => 'YOUR_CLIENT_ID',
@@ -12,4 +12,4 @@ $DisburseAPI =  new Disbursement(
     )
 );
 
-$DisburseAPI->authorize()->send($phone, $amount);
+$disburseAPI->authorize()->send($phone, $amount);

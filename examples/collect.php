@@ -1,7 +1,7 @@
 <?php
 use Osen\Airtel\Collection;
 
-$CollectAPI = new Collection(
+$collectAPI = new Collection(
     array(
         'env'           => 'live',
         'client_id'     => 'YOUR_CLIENT_ID',
@@ -12,4 +12,4 @@ $CollectAPI = new Collection(
     )
 );
 
-$CollectAPI->authorize()->ussdPush($amount, $phone);
+$collectAPI->authorize()->ussdPush($amount, $phone);
